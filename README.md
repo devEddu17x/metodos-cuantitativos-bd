@@ -4,7 +4,7 @@ Sistema de gestión de base de datos para administración de pedidos, cotizacion
 
 ## Diagrama de Base de Datos
 
-![Diagrama ER de la Base de Datos](docs\image.png)
+![Diagrama ER de la Base de Datos](docs/image.png)
 
 El diagrama muestra las relaciones entre todas las entidades del sistema, incluyendo clientes, empleados, pedidos, cotizaciones, prendas, materiales y más.
 
