@@ -12,32 +12,32 @@ export async function seedClients() {
       const dates = [];
       const startYear = 2018;
       const endYear = 2024;
-      
+
       for (let year = startYear; year <= endYear && dates.length < count; year++) {
         for (let month = 1; month <= 12 && dates.length < count; month++) {
           const daysInMonth = new Date(year, month, 0).getDate();
           const datesInThisMonth = Math.min(10, count - dates.length);
-          
+
           const usedDays = new Set();
           for (let i = 0; i < datesInThisMonth; i++) {
             let day;
             do {
               day = faker.number.int({ min: 1, max: daysInMonth });
             } while (usedDays.has(day));
-            
+
             usedDays.add(day);
             dates.push(new Date(year, month - 1, day));
           }
         }
       }
-      
+
       // Mezclar las fechas para distribuirlas aleatoriamente
       return faker.helpers.shuffle(dates);
     };
 
     const uniqueDates = generateUniqueDates(100);
     const clients = [];
-    
+
     // Tipos de descripciones para identificar clientes (válido para natural y jurídico)
     const descriptionTypes = [
       () => `Cliente recomendado por ${faker.person.firstName()}`,
@@ -64,19 +64,19 @@ export async function seedClients() {
       () => `Contacto directo de ventas`,
       () => `Cliente del sector empresarial`
     ];
-    
+
     for (let i = 0; i < 100; i++) {
       // Generar referido (70% de probabilidad de tener referido)
       const hasReferral = faker.datatype.boolean({ probability: 0.7 });
-      const referral = hasReferral ? 
-        `${faker.person.firstName()} ${faker.person.lastName()}` : 
+      const referral = hasReferral ?
+        `${faker.person.firstName()} ${faker.person.lastName()}` :
         null;
 
       // Seleccionar tipo de descripción aleatoriamente
       const descriptionGenerator = faker.helpers.arrayElement(descriptionTypes);
 
       clients.push([
-        faker.phone.number(), // telefono
+        `+51 9${faker.string.numeric(8)}`, // telefono
         descriptionGenerator(), // descripcion
         referral, // referido
         uniqueDates[i].toISOString().split('T')[0] // fecha_primer_compra
