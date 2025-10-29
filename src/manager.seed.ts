@@ -2,6 +2,7 @@
 import { seedEmployees } from "./entities/employees.seed";
 import { seedClients } from "./entities/clients.seed";
 import { seedSuppliers } from "./entities/suppliers.seed";
+import { seedAddresses } from "./entities/address.seed";
 
 async function runAllSeeders() {
   try {
@@ -11,6 +12,7 @@ async function runAllSeeders() {
     await seedEmployees();
     await seedClients();
     await seedSuppliers();
+    await seedAddresses();
 
     console.log("\n✅ All seeders completed successfully!");
   } catch (error) {
