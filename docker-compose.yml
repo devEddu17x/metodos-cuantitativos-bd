@@ -1,0 +1,12 @@
+services:
+  mysql_db:
+    image: mysql:8.0
+    
+    environment:
+      MYSQL_ROOT_PASSWORD: tu_password_root 
+      MYSQL_DATABASE: metodos_cuantitativos_dumi
+      MYSQL_USER: mi_usuario                  
+      MYSQL_PASSWORD: mi_password_secreto     
+      
+    ports:
+      - "3306:3306"
