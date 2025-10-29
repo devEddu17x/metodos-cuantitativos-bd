@@ -192,7 +192,6 @@ async function createSchema() {
         razon_social VARCHAR(255) NOT NULL,
         representante VARCHAR(100),
         telefono VARCHAR(20),
-        productos TEXT
       )
     `);
     console.log("Table 'proveedor' created");
