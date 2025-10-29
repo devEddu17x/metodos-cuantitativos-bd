@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "seed:schema": "ts-node src/schema-creation.seed.ts",
-    "clean": "ts-node src/cleaner.ts"
+    "clean": "ts-node src/cleaner.ts",
+    "seed:employees": "tsx src/entities/employees.seed.ts",
+    "seed:clients": "tsx src/entities/clients.seed.ts",
+    "seed:manager": "tsx src/manager.seed.ts"
+    
   },
   "keywords": [],
   "author": "",
