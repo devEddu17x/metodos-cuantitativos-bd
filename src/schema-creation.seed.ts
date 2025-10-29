@@ -71,7 +71,7 @@ async function createSchema() {
     await connection.query(`
       CREATE TABLE cliente (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        telefono VARCHAR(30) NOT NULL,
+        telefono VARCHAR(9) NOT NULL,
         descripcion TEXT,
         referido VARCHAR(100),
         fecha_primer_compra DATE
