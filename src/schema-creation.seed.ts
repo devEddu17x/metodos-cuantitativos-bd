@@ -189,9 +189,10 @@ async function createSchema() {
     await connection.query(`
       CREATE TABLE proveedor (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        ruc VARCHAR(11),
         razon_social VARCHAR(255) NOT NULL,
         representante VARCHAR(100),
-        telefono VARCHAR(20),
+        telefono VARCHAR(20)
       )
     `);
     console.log("Table 'proveedor' created");
