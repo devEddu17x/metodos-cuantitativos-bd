@@ -32,9 +32,9 @@ async function createSchema() {
     await connection.query(`
       CREATE TABLE direccion (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        departamento VARCHAR(100) NOT NULL,
-        ciudad VARCHAR(100) NOT NULL,
-        distrito VARCHAR(100),
+        departamento VARCHAR(255) NOT NULL,
+        provincia VARCHAR(255) NOT NULL,
+        distrito VARCHAR(255) NOT NULL,
         calle VARCHAR(255) NOT NULL
       )
     `);
