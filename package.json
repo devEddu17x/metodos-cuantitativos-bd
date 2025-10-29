@@ -8,7 +8,10 @@
     "clean": "ts-node src/cleaner.ts",
     "seed:employees": "tsx src/entities/employees.seed.ts",
     "seed:clients": "tsx src/entities/clients.seed.ts",
-    "seed:manager": "tsx src/manager.seed.ts"
+    "seed:manager": "tsx src/manager.seed.ts",
+    "seed:cliente-natural": "tsx src/entities/cliente_natural.seed.ts",
+    "seed:cliente-juridico": "tsx src/entities/cliente_juridico.seed.ts"
+
   },
   "keywords": [],
   "author": "",
