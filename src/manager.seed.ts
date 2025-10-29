@@ -1,6 +1,7 @@
 // This file is responsible for seeding all database entities using individual seed files.
 import { seedEmployees } from "./entities/employees.seed";
 import { seedClients } from "./entities/clients.seed";
+import { seedSuppliers } from "./entities/suppliers.seed";
 
 async function runAllSeeders() {
   try {
@@ -9,6 +10,7 @@ async function runAllSeeders() {
     // Sembrar en orden de dependencias
     await seedEmployees();
     await seedClients();
+    await seedSuppliers();
 
     console.log("\n✅ All seeders completed successfully!");
   } catch (error) {
@@ -17,4 +19,4 @@ async function runAllSeeders() {
   }
 }
 
-runAllSeeders();
+runAllSeeders().then(() => process.exit(0));
