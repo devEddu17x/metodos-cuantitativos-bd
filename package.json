@@ -9,7 +9,6 @@
     "seed:employees": "tsx src/entities/employees.seed.ts",
     "seed:clients": "tsx src/entities/clients.seed.ts",
     "seed:manager": "tsx src/manager.seed.ts"
-    
   },
   "keywords": [],
   "author": "",
@@ -21,6 +20,7 @@
     "mysql2": "^3.15.3"
   },
   "devDependencies": {
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6"
   }
 }

@@ -75,8 +75,10 @@ export async function seedClients() {
       // Seleccionar tipo de descripción aleatoriamente
       const descriptionGenerator = faker.helpers.arrayElement(descriptionTypes);
 
+      // Generar número de teléfono de 9 dígitos usando faker
+      const phoneNumber = faker.number.int({ min: 100000000, max: 999999999 }).toString();
       clients.push([
-        faker.phone.number(), // telefono
+        phoneNumber, // telefono
         descriptionGenerator(), // descripcion
         referral, // referido
         uniqueDates[i].toISOString().split('T')[0] // fecha_primer_compra
