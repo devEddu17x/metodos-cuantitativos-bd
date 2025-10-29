@@ -9,6 +9,7 @@
     "seed:employees": "tsx src/entities/employees.seed.ts",
     "seed:clients": "tsx src/entities/clients.seed.ts",
     "seed:suppliers": "tsx src/entities/supplier.seed.ts",
+    "seed:address": "tsx src/entities/address.seed.ts",
     "seed:manager": "tsx src/manager.seed.ts"
   },
   "keywords": [],
