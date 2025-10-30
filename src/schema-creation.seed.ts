@@ -229,7 +229,7 @@ async function createSchema() {
     // Create table: detalle_cotizacion
     await connection.query(`
       CREATE TABLE detalle_cotizacion (
-        unitario DECIMAL(10, 2) NOT NULL,
+        precio_unitario DECIMAL(10, 2) NOT NULL,
         cantidad INT NOT NULL,
         cotizacion_id INT NOT NULL,
         prenda_id INT NOT NULL,
