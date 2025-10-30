@@ -16,7 +16,7 @@ export async function seedEmployees() {
       ]);
     }
 
-    await connection.query(
+    await connection.query( 
       `INSERT INTO empleado (nombres, apellidos, email) VALUES ?`,
       [employees]
     );

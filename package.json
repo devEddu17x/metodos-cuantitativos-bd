@@ -8,14 +8,13 @@
     "clean": "ts-node src/cleaner.ts",
     "seed:employees": "tsx src/entities/employees.seed.ts",
     "seed:clients": "tsx src/entities/clients.seed.ts",
-    "seed:cliente-natural": "tsx src/entities/cliente_natural.seed.ts",
-    "seed:cliente-juridico": "tsx src/entities/cliente_juridico.seed.ts",
     "seed:garments": "tsx src/entities/garments.seed.ts",
     "seed:sizes": "tsx src/entities/sizes.seed.ts",
     "seed:materials": "tsx src/entities/materials.seed.ts",
     "seed:suppliers": "tsx src/entities/supplier.seed.ts",
     "seed:address": "tsx src/entities/address.seed.ts",
     "seed:manager": "tsx src/manager.seed.ts"
+
   },
   "keywords": [],
   "author": "",

@@ -3,11 +3,11 @@ import { seedEmployees } from "./entities/employees.seed";
 import { seedClients } from "./entities/clients.seed";
 import { seedSuppliers } from "./entities/suppliers.seed";
 import { seedAddresses } from "./entities/address.seed";
-import { seedClientsNatural } from "./entities/cliente_natural.seed";
-import { seedClientsJuridico } from "./entities/cliente_juridico.seed";
+
 import { seedGarments } from "./entities/garments.seed";
 import { seedSizes } from "./entities/sizes.seed";
 import { seedMaterials } from "./entities/materials.seed";
+
 
 async function runAllSeeders() {
   try {
@@ -16,13 +16,12 @@ async function runAllSeeders() {
     // Sembrar en orden de dependencias
     await seedEmployees();
     await seedClients();
-    await seedClientsNatural();
-    await seedClientsJuridico();
     await seedSuppliers();
     await seedAddresses();
     await seedGarments();
     await seedSizes();
     await seedMaterials();
+
 
 
     console.log("\n✅ All seeders completed successfully!");
