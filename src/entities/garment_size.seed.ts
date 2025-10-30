@@ -26,11 +26,7 @@ export async function seedGarmentSize() {
 
     // 2. Assign sizes to garments
     for (const garment of garments) {
-      // Each garment will have a random number of sizes (e.g., 2 to 5 sizes)
-      const numSizes = faker.number.int({ min: 2, max: Math.min(5, sizes.length) });
-      const assignedSizes = faker.helpers.arrayElements(sizes, numSizes);
-
-      for (const size of assignedSizes) {
+      for (const size of sizes) {  // Asignar TODAS las tallas
         const linkKey = `${garment.id}-${size.id}`;
         if (!uniqueLinks.has(linkKey)) {
           uniqueLinks.add(linkKey);
