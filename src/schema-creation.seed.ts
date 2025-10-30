@@ -166,6 +166,7 @@ async function createSchema() {
       CREATE TABLE prenda_talla (
         prenda_id INT NOT NULL,
         talla_id INT NOT NULL,
+        precio DECIMAL(10, 2) DEFAULT NULL,
         PRIMARY KEY (prenda_id, talla_id),
         FOREIGN KEY (prenda_id) REFERENCES prenda(id),
         FOREIGN KEY (talla_id) REFERENCES talla(id)
