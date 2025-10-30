@@ -24,26 +24,53 @@ export async function seedSupplierMaterial() {
     const supplierMaterialLinks = [];
     const uniqueLinks = new Set<string>();
 
-    // 2. Create at least 200 relationships
-    while (supplierMaterialLinks.length < 200) {
-      const supplier = faker.helpers.arrayElement(suppliers);
-      const material = faker.helpers.arrayElement(materials);
-      const linkKey = `${supplier.id}-${material.id}`;
-
-      // Avoid duplicates
+    // Helper function to add a link
+    const addLink = (supplierId: number, materialId: number) => {
+      const linkKey = `${supplierId}-${materialId}`;
       if (!uniqueLinks.has(linkKey)) {
         uniqueLinks.add(linkKey);
-        supplierMaterialLinks.push([supplier.id, material.id]);
+        supplierMaterialLinks.push([supplierId, materialId]);
+        return true;
+      }
+      return false;
+    };
+
+    // 2. PASO 1: Garantizar que TODOS los materiales tengan al menos 1 proveedor
+    console.log("   📌 Asignando al menos 1 proveedor a cada material...");
+    for (const material of materials) {
+      const randomSupplier = faker.helpers.arrayElement(suppliers);
+      addLink(randomSupplier.id, material.id);
+    }
+
+    // 3. PASO 2: Garantizar que TODOS los proveedores tengan al menos 1 material
+    console.log("   📌 Asignando al menos 1 material a cada proveedor...");
+    for (const supplier of suppliers) {
+      const randomMaterial = faker.helpers.arrayElement(materials);
+      addLink(supplier.id, randomMaterial.id);
+    }
+
+    // 4. PASO 3: Agregar relaciones adicionales para que cada proveedor tenga múltiples materiales (más realista)
+    console.log("   📌 Agregando relaciones adicionales...");
+    for (const supplier of suppliers) {
+      // Cada proveedor tendrá entre 3 y 10 materiales (o menos si no hay suficientes)
+      const numMaterials = faker.number.int({ min: 3, max: Math.min(10, materials.length) });
+      const assignedMaterials = faker.helpers.arrayElements(materials, numMaterials);
+
+      for (const material of assignedMaterials) {
+        addLink(supplier.id, material.id);
       }
     }
 
-    // 3. Bulk insert
+    // 5. Bulk insert
     await connection.query(
       `INSERT INTO proveedor_material (proveedor_id, material_id) VALUES ?`,
       [supplierMaterialLinks]
     );
 
     console.log(`✅ ${supplierMaterialLinks.length} supplier-material links inserted!`);
+    console.log(`   • ${materials.length} materiales tienen al menos 1 proveedor`);
+    console.log(`   • ${suppliers.length} proveedores tienen al menos 1 material`);
+    console.log(`   • Promedio: ${(supplierMaterialLinks.length / suppliers.length).toFixed(2)} materiales por proveedor`);
   } catch (error) {
     console.error("❌ Error seeding supplier_material:", error);
     throw error;
