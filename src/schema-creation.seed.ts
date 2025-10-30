@@ -157,7 +157,7 @@ async function createSchema() {
     await connection.query(`
       CREATE TABLE talla (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        talla VARCHAR(10) NOT NULL
+        talla VARCHAR(30) NOT NULL
       )
     `);
     console.log("Table 'talla' created");
