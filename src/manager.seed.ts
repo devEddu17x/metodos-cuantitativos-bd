@@ -31,7 +31,7 @@ async function runAllSeeders() {
     await seedGarmentSize();
     await seedGarmentSizeMaterial();
     await generatePricesPerGarmentSize(); //  prices per size
-    // await seedQuotation(); 
+    await seedQuotation();
     // await seedOrder();   
     // await seedPayment();
 
