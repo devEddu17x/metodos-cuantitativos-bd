@@ -18,14 +18,14 @@ export async function seedGarments() {
       "Polo manga larga",
       "Camiseta oversize",
       "Polo pique",
-      
+
       // Camisas
       "Camisa manga corta",
       "Camisa manga larga",
       "Camisa casual",
       "Camisa de trabajo",
       "Camisa estampada",
-      
+
       // Pantalones
       "Pantalón jeans",
       "Pantalón de vestir",
@@ -34,55 +34,39 @@ export async function seedGarments() {
       "Short deportivo",
       "Short casual",
       "Pantalón chino",
-      
+
       // Prendas deportivas
       "Buzo deportivo",
       "Casaca deportiva",
       "Polera deportiva",
       "Short de entrenamiento",
       "Conjunto deportivo",
-      
+
       // Ropa casual/urbana
       "Hoodie",
       "Sudadera",
       "Chompa básica",
       "Cardigan",
       "Chaleco",
-      
+
       // Ropa de trabajo/uniformes
       "Uniforme escolar",
       "Polo empresarial",
       "Delantal",
       "Overol de trabajo",
       "Chaleco corporativo",
-      
+
       // Ropa interior y básicos
       "Camiseta interior",
       "Boxer",
       "Pijama",
       "Ropa de dormir",
-      
+
       // Accesorios textiles
       "Gorra",
       "Bufanda",
       "Guantes de tela",
       "Bandana"
-    ];
-
-    // Materiales comunes en el rubro textil
-    const materiales = [
-      "100% Algodón",
-      "Algodón + Poliéster",
-      "Pique de algodón",
-      "Jersey de algodón",
-      "Denim",
-      "Gabardina",
-      "Drill",
-      "Popelina",
-      "Lycra",
-      "Microfibra",
-      "Franela",
-      "Polar"
     ];
 
     // Colores populares
@@ -92,27 +76,32 @@ export async function seedGarments() {
       "Naranja", "Beige", "Marrón", "Turquesa", "Coral"
     ];
 
+    // Descripciones comerciales (sin mencionar materiales específicos)
+    const descripcionesComerciales = [
+      "Ideal para uso diario. Comodidad garantizada.",
+      "Alta calidad y durabilidad. Perfecto para cualquier ocasión.",
+      "Diseño moderno y funcional. Confección de primera.",
+      "Estilo versátil y elegante. Acabados premium.",
+      "Confort superior. Diseño pensado para ti.",
+      "Calidad excepcional. Resistente al uso constante.",
+      "Perfecto balance entre estilo y comodidad.",
+      "Confección artesanal. Detalles cuidados.",
+      "Diseño contemporáneo. Máxima durabilidad.",
+      "Prenda versátil de alta gama. Excelente caída."
+    ];
+
     const prendas = [];
-    
+
     for (let i = 0; i < 100; i++) {
       const tipoPrenda = faker.helpers.arrayElement(tiposPrendas);
-      const material = faker.helpers.arrayElement(materiales);
       const color = faker.helpers.arrayElement(colores);
-      
+
       // Crear nombre de prenda combinando tipo y características
       const nombrePrenda = `${tipoPrenda} ${color}`.trim();
-      
-      // Descripción detallada
-      const descripciones = [
-        `${tipoPrenda} confeccionado en ${material}. Ideal para uso diario.`,
-        `${tipoPrenda} de alta calidad en ${material}. Cómodo y duradero.`,
-        `${tipoPrenda} en ${material}, perfecto para cualquier ocasión.`,
-        `${tipoPrenda} premium en ${material}. Diseño moderno y funcional.`,
-        `${tipoPrenda} clásico en ${material}. Estilo versátil y elegante.`
-      ];
-      
-      const descripcion = faker.helpers.arrayElement(descripciones);
-      
+
+      // Descripción comercial
+      const descripcion = `${tipoPrenda} de ${faker.helpers.arrayElement(descripcionesComerciales)}`;
+
       // Diseño (especialmente importante para polos personalizados)
       const diseños = [
         "Diseño básico",
@@ -126,7 +115,7 @@ export async function seedGarments() {
         "Diseño minimalista",
         "Logo institucional"
       ];
-      
+
       const diseño = faker.helpers.arrayElement(diseños);
 
       prendas.push([
