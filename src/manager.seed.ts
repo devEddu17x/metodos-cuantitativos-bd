@@ -8,10 +8,11 @@ import { seedSizes } from "./entities/sizes.seed";
 import { seedMaterials } from "./entities/materials.seed";
 import { seedSupplierMaterial } from "./entities/supplier_material.seed";
 import { seedGarmentSize } from "./entities/garment_size.seed";
-import { seedGarmentSizeMaterial } from "./entities/garment_size_material.seed"; 
+import { seedGarmentSizeMaterial } from "./entities/garment_size_material.seed";
 import { seedQuotation } from "./entities/quotation.seed";
 import { seedOrder } from "./entities/order.seed";
 import { seedPayment } from "./entities/payment.seed";
+import { generatePricesPerGarmentSize } from "./entities/helpers/generate-prices-per-garment-size";
 
 
 async function runAllSeeders() {
@@ -29,9 +30,10 @@ async function runAllSeeders() {
     await seedSupplierMaterial();
     await seedGarmentSize();
     await seedGarmentSizeMaterial();
-    await seedQuotation(); 
-    await seedOrder();   
-    await seedPayment();
+    await generatePricesPerGarmentSize(); //  prices per size
+    // await seedQuotation(); 
+    // await seedOrder();   
+    // await seedPayment();
 
 
     console.log("\n✅ All seeders completed successfully!");
