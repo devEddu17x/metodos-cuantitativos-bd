@@ -180,7 +180,9 @@ async function createSchema() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL,
         categoria VARCHAR(100),
-        precio DECIMAL(10, 2) NOT NULL
+        precio DECIMAL(10, 2) NOT NULL,
+        unidad_medida VARCHAR(20) NOT NULL,
+        cantidad_base DECIMAL(10, 2) NOT NULL
       )
     `);
     console.log("Table 'material' created");
