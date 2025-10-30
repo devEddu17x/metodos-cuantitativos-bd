@@ -66,79 +66,117 @@ export async function seedMaterials() {
 
     for (const [categoria, nombres] of Object.entries(categoriasMateriales)) {
       let count = 0;
-      
+
       // Generar materiales para cada categoría
       while (count < totalPorCategoria && materiales.length < 100) {
         const nombre = faker.helpers.arrayElement(nombres);
-        
-        // Generar precios realistas según la categoría
-        let precio;
+
+        // Generar precios realistas según la categoría con unidad de medida y cantidad base
+        let precio, unidadMedida, cantidadBase;
         switch (categoria) {
           case "Tela":
-            precio = faker.number.float({ min: 8.50, max: 45.00, fractionDigits: 2 }); // Por metro
+            precio = faker.number.float({ min: 8.50, max: 45.00, fractionDigits: 2 }); // Por rollo/paquete
+            unidadMedida = "metro";
+            cantidadBase = faker.number.float({ min: 20, max: 100, fractionDigits: 1 }); // Rollo de 20-100 metros
             break;
           case "Hilo":
             precio = faker.number.float({ min: 2.50, max: 8.00, fractionDigits: 2 }); // Por cono
+            unidadMedida = "metro";
+            cantidadBase = faker.number.int({ min: 200, max: 1000 }); // Cono de 200-1000 metros
             break;
           case "Tinta":
-            precio = faker.number.float({ min: 15.00, max: 85.00, fractionDigits: 2 }); // Por kg/litro
+            precio = faker.number.float({ min: 15.00, max: 85.00, fractionDigits: 2 }); // Por frasco/galón
+            unidadMedida = "litro";
+            cantidadBase = faker.helpers.arrayElement([0.25, 0.5, 1, 3.785]); // 250ml, 500ml, 1L, 1 galón
             break;
           case "Aguja":
-            precio = faker.number.float({ min: 0.50, max: 3.00, fractionDigits: 2 }); // Por unidad
+            precio = faker.number.float({ min: 5.00, max: 25.00, fractionDigits: 2 }); // Por paquete
+            unidadMedida = "unidad";
+            cantidadBase = faker.helpers.arrayElement([10, 25, 50, 100]); // Paquete de agujas
             break;
           case "Botón":
-            precio = faker.number.float({ min: 0.10, max: 2.50, fractionDigits: 2 }); // Por unidad
+            precio = faker.number.float({ min: 5.00, max: 50.00, fractionDigits: 2 }); // Por bolsa/caja
+            unidadMedida = "unidad";
+            cantidadBase = faker.helpers.arrayElement([50, 100, 144, 500]); // Caja de botones (144 = 1 gruesa)
             break;
           case "Cierre":
-            precio = faker.number.float({ min: 1.20, max: 8.00, fractionDigits: 2 }); // Por unidad
+            precio = faker.number.float({ min: 12.00, max: 60.00, fractionDigits: 2 }); // Por paquete
+            unidadMedida = "unidad";
+            cantidadBase = faker.helpers.arrayElement([10, 25, 50, 100]); // Paquete de cierres
             break;
           case "Elástico":
-            precio = faker.number.float({ min: 1.50, max: 6.00, fractionDigits: 2 }); // Por metro
+            precio = faker.number.float({ min: 8.00, max: 35.00, fractionDigits: 2 }); // Por rollo
+            unidadMedida = "metro";
+            cantidadBase = faker.helpers.arrayElement([10, 25, 50, 100]); // Rollo de elástico
             break;
           case "Etiqueta":
-            precio = faker.number.float({ min: 0.05, max: 0.80, fractionDigits: 2 }); // Por unidad
+            precio = faker.number.float({ min: 10.00, max: 80.00, fractionDigits: 2 }); // Por paquete
+            unidadMedida = "unidad";
+            cantidadBase = faker.helpers.arrayElement([100, 250, 500, 1000]); // Rollo de etiquetas
             break;
           case "Accesorio":
-            precio = faker.number.float({ min: 0.30, max: 12.00, fractionDigits: 2 }); // Por unidad/metro
+            precio = faker.number.float({ min: 5.00, max: 60.00, fractionDigits: 2 }); // Por paquete/rollo
+            unidadMedida = faker.helpers.arrayElement(["unidad", "metro"]); // Depende del accesorio
+            cantidadBase = unidadMedida === "metro"
+              ? faker.helpers.arrayElement([10, 25, 50])
+              : faker.helpers.arrayElement([50, 100, 200]);
             break;
           case "Adhesivo":
-            precio = faker.number.float({ min: 3.50, max: 25.00, fractionDigits: 2 }); // Por metro/frasco
+            precio = faker.number.float({ min: 8.00, max: 45.00, fractionDigits: 2 }); // Por rollo/frasco
+            unidadMedida = faker.helpers.arrayElement(["metro", "litro"]); // Entretela en metros, pegamento en litros
+            cantidadBase = unidadMedida === "metro"
+              ? faker.helpers.arrayElement([25, 50, 100])
+              : faker.helpers.arrayElement([0.25, 0.5, 1]);
             break;
           case "Químico":
-            precio = faker.number.float({ min: 8.00, max: 45.00, fractionDigits: 2 }); // Por litro/kg
+            precio = faker.number.float({ min: 15.00, max: 80.00, fractionDigits: 2 }); // Por galón/bidón
+            unidadMedida = "litro";
+            cantidadBase = faker.helpers.arrayElement([1, 3.785, 5, 20]); // 1L, 1 galón, 5L, 20L
             break;
           default:
-            precio = faker.number.float({ min: 1.00, max: 20.00, fractionDigits: 2 });
+            precio = faker.number.float({ min: 5.00, max: 50.00, fractionDigits: 2 });
+            unidadMedida = "unidad";
+            cantidadBase = 1;
         }
 
         materiales.push([
           nombre,
           categoria,
-          precio
+          precio,
+          unidadMedida,
+          cantidadBase
         ]);
-        
+
         count++;
       }
     }
 
     await connection.query(
-      `INSERT INTO material (nombre, categoria, precio) VALUES ?`,
+      `INSERT INTO material (nombre, categoria, precio, unidad_medida, cantidad_base) VALUES ?`,
       [materiales]
     );
 
     console.log(`✅ ${materiales.length} materiales insertados!`);
-    
+
     // Mostrar distribución por categoría
     const distribucion = {};
     materiales.forEach(([, categoria]) => {
       distribucion[categoria] = (distribucion[categoria] || 0) + 1;
     });
-    
+
     console.log("📋 Distribución por categoría:");
     Object.entries(distribucion).forEach(([cat, count]) => {
       console.log(`   • ${cat}: ${count} materiales`);
     });
-    
+
+    // Mostrar ejemplos de cálculo de precio unitario
+    console.log("\n💡 Ejemplos de cálculo de precio unitario:");
+    const ejemplos = materiales.slice(0, 3);
+    ejemplos.forEach(([nombre, categoria, precio, unidad, cantBase]) => {
+      const precioUnitario = (precio / cantBase).toFixed(4);
+      console.log(`   • ${nombre}: S/ ${precio} por ${cantBase} ${unidad}(s) = S/ ${precioUnitario} por ${unidad}`);
+    });
+
   } catch (error) {
     console.error("❌ Error seeding materiales:", error);
     throw error;
