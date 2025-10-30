@@ -13,7 +13,13 @@
     "seed:materials": "tsx src/entities/materials.seed.ts",
     "seed:suppliers": "tsx src/entities/supplier.seed.ts",
     "seed:address": "tsx src/entities/address.seed.ts",
-    "seed:manager": "tsx src/manager.seed.ts"
+    "seed:manager": "tsx src/manager.seed.ts",
+    "seed:supplier-material": "tsx src/entities/supplier_material.seed.ts",
+    "seed:garment-size": "tsx src/entities/garment_size.seed.ts",
+    "seed:garment-size-material": "tsx src/entities/garment_size_material.seed.ts",
+    "seed:quotation": "tsx src/entities/quotation.seed.ts",
+    "seed:order": "tsx src/entities/order.seed.ts",
+    "seed:payment": "tsx src/entities/payment.seed.ts"
 
   },
   "keywords": [],
