@@ -140,7 +140,6 @@ async function createSchema() {
       ALTER TABLE pago
       ADD FOREIGN KEY (pedido_id) REFERENCES pedido(id)
     `);
-    console.log("Foreign key added to 'pago' table");
 
     // Create table: prenda
     await connection.query(`
