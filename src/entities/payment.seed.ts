@@ -7,95 +7,143 @@ interface OrderPacket extends RowDataPacket {
   id: number;
   total: number;
   fecha_emision: Date;
-  fecha_entrega: Date;
+  fecha_entrega_real: Date;
 }
+
 interface EmployeePacket extends RowDataPacket {
   id: number;
 }
 
 export async function seedPayment() {
   const connection = await pool.getConnection();
-  console.log("🌱 Seeding payments...");
+  console.log("🌱 Seeding pagos...");
 
   try {
-    // 1. Find "In Production" orders that have no payments
-    const [pendingOrders] = await connection.query<OrderPacket[]>(`
-      SELECT p.id, p.total, p.fecha_emision, p.fecha_entrega
-      FROM pedido p
-      LEFT JOIN pago pa ON p.id = pa.pedido_id
-      WHERE p.estado = 'En Producción' AND pa.id IS NULL
-    `);
+    // 1. Obtener todos los pedidos y empleados
+    console.log("   📥 Obteniendo pedidos y empleados...");
+    const [orders] = await connection.query<OrderPacket[]>(
+      `SELECT id, total, fecha_emision, fecha_entrega_real FROM pedido`
+    );
 
-    const [employees] = await connection.query<EmployeePacket[]>("SELECT id FROM empleado"); // Cashiers
+    const [employees] = await connection.query<EmployeePacket[]>(
+      "SELECT id FROM empleado"
+    );
 
-    if (pendingOrders.length === 0) {
-      console.log("⚠️ No pending orders found for payment.");
+    if (orders.length === 0) {
+      console.log("⚠️ No hay pedidos para crear pagos.");
       return;
     }
     if (employees.length === 0) {
-      console.log("⚠️ Cannot register payments without employees (cashiers).");
+      console.log("⚠️ No se pueden registrar pagos sin empleados.");
       return;
     }
 
-    const payments = [];
-    const ordersToUpdate = [];
+    console.log(`   ✓ ${orders.length} pedidos, ${employees.length} empleados disponibles`);
 
-    for (const order of pendingOrders) {
-      const cashier = faker.helpers.arrayElement(employees);
-      const method = faker.helpers.arrayElement(['Efectivo', 'Tarjeta', 'Yape', 'Plin']);
-      const advanceAmount = order.total * 0.5;
-      const finalAmount = order.total - advanceAmount;
-      const advanceDate = faker.date.soon({ days: 1, refDate: order.fecha_emision });
-      const finalDate = faker.date.between({
-        from: advanceDate,
-        to: order.fecha_entrega.getTime() <= advanceDate.getTime()
-          ? faker.date.soon({ days: 7, refDate: advanceDate })
-          : order.fecha_entrega
-      });
+    // 2. Métodos de pago disponibles
+    const metodosPago = ['EFECTIVO', 'YAPE', 'PLIN', 'TRANSFERENCIA', 'TARJETA'];
 
-      // 2. Create Payment 1 (Advance)
+    // 3. Rastrear pagos por empleado para garantizar al menos 2 por empleado
+    const pagosPorEmpleado = new Map<number, number>();
+    employees.forEach(e => pagosPorEmpleado.set(e.id, 0));
+
+    const payments: any[] = [];
+
+    // 4. Crear 2 pagos por cada pedido
+    console.log("   💰 Generando 2 pagos por pedido (50% + 50%)...");
+
+    for (let i = 0; i < orders.length; i++) {
+      const order = orders[i];
+
+      // Seleccionar empleado (garantizar distribución)
+      let empleado: EmployeePacket;
+
+      // Si aún quedan empleados sin alcanzar el mínimo de 2 pagos, priorizar esos
+      const empleadosSinMinimo = employees.filter(e => (pagosPorEmpleado.get(e.id) || 0) < 2);
+      if (empleadosSinMinimo.length > 0) {
+        empleado = faker.helpers.arrayElement(empleadosSinMinimo);
+      } else {
+        empleado = faker.helpers.arrayElement(employees);
+      }
+
+      const metodoPago = faker.helpers.arrayElement(metodosPago);
+
+      // Calcular montos (50% cada uno)
+      const montoPrimerPago = parseFloat((order.total * 0.5).toFixed(2));
+      const montoSegundoPago = parseFloat((order.total - montoPrimerPago).toFixed(2)); // Ajuste por redondeo
+
+      // PRIMER PAGO: 50% en fecha de emisión
       payments.push([
-        advanceDate,
-        advanceAmount,
-        'Adelanto', // Type
-        method,
+        order.fecha_emision,
+        montoPrimerPago,
+        'ADELANTO',
+        metodoPago,
         1, // numero_pago_pedido
-        order.id, // pedido_id
-        cashier.id // empleado_id
+        order.id,
+        empleado.id
       ]);
 
-      // 3. Create Payment 2 (Cancellation)
+      pagosPorEmpleado.set(empleado.id, (pagosPorEmpleado.get(empleado.id) || 0) + 1);
+
+      // SEGUNDO PAGO: 50% en fecha de entrega real
       payments.push([
-        finalDate,
-        finalAmount,
-        'Cancelación', // Type
-        method,
+        order.fecha_entrega_real,
+        montoSegundoPago,
+        'CANCELACIÓN',
+        metodoPago,
         2, // numero_pago_pedido
-        order.id, // pedido_id
-        cashier.id // empleado_id
+        order.id,
+        empleado.id
       ]);
-      
-      // 4. Mark order to be updated to 'Delivered'
-      ordersToUpdate.push(order.id);
+
+      pagosPorEmpleado.set(empleado.id, (pagosPorEmpleado.get(empleado.id) || 0) + 1);
     }
 
-    // 5. Bulk insert all payments
+    // 5. Verificar que todos los empleados tengan al menos 2 pagos
+    const empleadosSinMinimo = Array.from(pagosPorEmpleado.entries())
+      .filter(([_, count]) => count < 2);
+
+    if (empleadosSinMinimo.length > 0) {
+      console.log(`   ⚠️ Advertencia: ${empleadosSinMinimo.length} empleados tienen menos de 2 pagos`);
+      console.log(`   📝 Esto puede ocurrir si hay más empleados que pedidos`);
+    }
+
+    // 6. Insertar todos los pagos
+    console.log("   💾 Insertando pagos en la base de datos...");
     await connection.query(
-      `INSERT INTO pago (fecha, monto, tipo, metodo_pago, numero_pago_pedido, pedido_id, empleado_id) VALUES ?`,
+      `INSERT INTO pago (fecha, monto, tipo, metodo_pago, numero_pago_pedido, pedido_id, empleado_id) 
+       VALUES ?`,
       [payments]
     );
 
-    // 6. Update order status to 'Delivered'
-    if (ordersToUpdate.length > 0) {
-      await connection.query(
-        `UPDATE pedido SET estado = 'Entregado' WHERE id IN (?)`,
-        [ordersToUpdate]
-      );
-    }
+    // 7. Estadísticas
+    const empleadosConMinimo = Array.from(pagosPorEmpleado.values())
+      .filter(count => count >= 2).length;
 
-    console.log(`✅ ${payments.length} payments (for ${ordersToUpdate.length} orders) inserted!`);
+    const totalPrimerPago = payments.filter(p => p[4] === 1).length;
+    const totalSegundoPago = payments.filter(p => p[4] === 2).length;
+
+    // Contar por método de pago
+    const pagosPorMetodo: { [key: string]: number } = {};
+    metodosPago.forEach(metodo => {
+      pagosPorMetodo[metodo] = payments.filter(p => p[3] === metodo).length;
+    });
+
+    console.log(`\n✅ Pagos generados exitosamente!`);
+    console.log(`\n📊 Resumen:`);
+    console.log(`   • Total pagos: ${payments.length}`);
+    console.log(`   • Primer pago (50% - Adelanto): ${totalPrimerPago}`);
+    console.log(`   • Segundo pago (50% - Cancelación): ${totalSegundoPago}`);
+    console.log(`   • Empleados con al menos 2 pagos: ${empleadosConMinimo}/${employees.length}`);
+    console.log(`   • Cada pedido tiene exactamente 2 pagos ✓`);
+
+    console.log(`\n💳 Distribución por método de pago:`);
+    Object.entries(pagosPorMetodo).forEach(([metodo, count]) => {
+      console.log(`   • ${metodo}: ${count} (${((count / payments.length) * 100).toFixed(1)}%)`);
+    });
+
   } catch (error) {
-    console.error("❌ Error seeding payment:", error);
+    console.error("❌ Error seeding pagos:", error);
     throw error;
   } finally {
     connection.release();
