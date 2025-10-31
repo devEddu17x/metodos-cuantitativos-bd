@@ -8,6 +8,7 @@ interface MaterialPacket extends RowDataPacket {
     categoria: string;
     unidad_medida: string;
     precio: number;
+    cantidad_base: number;
 }
 
 export async function loadDimensionMaterial() {
@@ -17,7 +18,7 @@ export async function loadDimensionMaterial() {
 
     try {
         const [materiales] = await oltp.query<MaterialPacket[]>(
-            `SELECT id, nombre, categoria, unidad_medida, precio FROM material`
+            `SELECT id, nombre, categoria, unidad_medida, precio, cantidad_base FROM material`
         );
 
         if (materiales.length === 0) {
@@ -30,11 +31,12 @@ export async function loadDimensionMaterial() {
             mat.nombre,
             mat.categoria,
             mat.unidad_medida,
-            mat.precio
+            mat.precio,
+            mat.cantidad_base
         ]);
 
         await olap.query(
-            `INSERT INTO d_material (material_id, nombre_material, categoria_material, unidad_medida, precio_compra_material)
+            `INSERT INTO d_material (material_id, nombre_material, categoria_material, unidad_medida, precio_compra_material, cantidad_base)
        VALUES ?`,
             [records]
         );
