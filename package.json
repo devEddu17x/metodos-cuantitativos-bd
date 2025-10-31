@@ -7,6 +7,7 @@
     "seed:schema": "ts-node src/schema-creation.seed.ts",
     "seed:star-schema": "ts-node src/star-schema-creation.seed.ts",
     "clean": "ts-node src/cleaner.ts",
+    "clean:star": "tsx src/star-schema-cleaner.ts",
     "seed:employees": "tsx src/entities/employees.seed.ts",
     "seed:clients": "tsx src/entities/clients.seed.ts",
     "seed:garments": "tsx src/entities/garments.seed.ts",
@@ -21,7 +22,8 @@
     "seed:prices": "tsx src/entities/helpers/generate-prices-per-garment-size.ts",
     "seed:quotation": "tsx src/entities/quotation.seed.ts",
     "seed:order": "tsx src/entities/order.seed.ts",
-    "seed:payment": "tsx src/entities/payment.seed.ts"
+    "seed:payment": "tsx src/entities/payment.seed.ts",
+    "etl": "tsx src/etl/etl-master.ts"
   },
   "keywords": [],
   "author": "",
