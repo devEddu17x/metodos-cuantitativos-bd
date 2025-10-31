@@ -97,7 +97,8 @@ async function createStarSchema() {
         nombre_material VARCHAR(100) NOT NULL,
         categoria_material VARCHAR(100),
         unidad_medida VARCHAR(20) NOT NULL,
-        precio_compra_material DECIMAL(10, 2) NOT NULL
+        precio_compra_material DECIMAL(10, 2) NOT NULL,
+        cantidad_base DECIMAL(10, 2) NOT NULL
       )
     `);
     console.log("Table 'd_material' created");
