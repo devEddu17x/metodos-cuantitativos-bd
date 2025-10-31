@@ -5,6 +5,8 @@ import { RowDataPacket } from "mysql2/promise";
 interface ClientePacket extends RowDataPacket {
     id: number;
     telefono: string;
+    referido: string | null;
+    fecha_primer_compra: Date | null;
     // Cliente natural
     dni?: string;
     nombre?: string;
@@ -28,6 +30,8 @@ export async function loadDimensionCliente() {
             `SELECT 
         c.id,
         c.telefono,
+        c.referido,
+        c.fecha_primer_compra,
         cn.dni,
         cn.nombre,
         cn.apellido,
@@ -61,8 +65,8 @@ export async function loadDimensionCliente() {
                 tipoCliente,
                 documentoIdentidad,
                 cli.telefono,
-                null, // referido_por
-                null  // fecha_primer_compra
+                cli.referido,
+                cli.fecha_primer_compra
             ];
         }); await olap.query(
             `INSERT INTO d_cliente 
