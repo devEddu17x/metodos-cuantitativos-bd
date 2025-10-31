@@ -3,11 +3,12 @@ import { starSchemaPool } from "../../star-schema.config";
 import { RowDataPacket } from "mysql2/promise";
 
 interface PrendaTallaPacket extends RowDataPacket {
+    prenda_id: number;
+    talla_id: number;
     nombre_prenda: string;
     descripcion: string;
     diseno: string;
     talla: string;
-    precio: number;
 }
 
 export async function loadDimensionPrenda() {
@@ -17,15 +18,15 @@ export async function loadDimensionPrenda() {
 
     try {
         // JOIN prenda + prenda_talla + talla para combinar
-        // Nota: prenda_talla no tiene ID, su PK es compuesta (prenda_id, talla_id)
-        // En star schema, usamos ROW_NUMBER para generar IDs únicos
+        // prenda_id será la concatenación: prenda_id-talla_id (ej: "1-2")
         const [prendasTallas] = await oltp.query<PrendaTallaPacket[]>(
             `SELECT 
+        pt.prenda_id,
+        pt.talla_id,
         p.nombre_prenda,
         p.descripcion,
         p.diseno,
-        t.talla,
-        pt.precio
+        t.talla
        FROM prenda_talla pt
        INNER JOIN prenda p ON pt.prenda_id = p.id
        INNER JOIN talla t ON pt.talla_id = t.id
@@ -37,18 +38,18 @@ export async function loadDimensionPrenda() {
             return;
         }
 
-        // Generar IDs secuenciales empezando desde 1
-        const records = prendasTallas.map((pt, index) => [
-            index + 1, // prenda_id secuencial
+        // Usar concatenación de IDs: "prenda_id-talla_id"
+        const records = prendasTallas.map(pt => [
+            `${pt.prenda_id}-${pt.talla_id}`, // prenda_id compuesto
             pt.nombre_prenda,
             pt.descripcion,
             pt.diseno,
-            pt.talla,
-            null // categoria_prenda - no existe en schema ER actual
-        ]); await olap.query(
+            pt.talla
+        ]);
+
+        await olap.query(
             `INSERT INTO d_prenda 
-       (prenda_id, nombre_prenda, descripcion_prenda, diseno_prenda, 
-        talla_prenda, categoria_prenda)
+       (prenda_id, nombre_prenda, descripcion_prenda, diseno_prenda, talla_prenda)
        VALUES ?`,
             [records]
         );
