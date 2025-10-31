@@ -80,12 +80,11 @@ async function createStarSchema() {
     // Dimension: d_prenda
     await connection.query(`
       CREATE TABLE d_prenda (
-        prenda_id INT PRIMARY KEY,
+        prenda_id VARCHAR(20) PRIMARY KEY,
         nombre_prenda VARCHAR(100) NOT NULL,
         descripcion_prenda TEXT,
         diseno_prenda VARCHAR(255),
-        talla_prenda VARCHAR(30) NOT NULL,
-        categoria_prenda VARCHAR(100)
+        talla_prenda VARCHAR(30) NOT NULL
       )
     `);
     console.log("Table 'd_prenda' created");
@@ -117,7 +116,7 @@ async function createStarSchema() {
     // Dimension: d_metodo_pago
     await connection.query(`
       CREATE TABLE d_metodo_pago (
-        metodo_pago_id INT AUTO_INCREMENT PRIMARY KEY,
+        metodo_pago_id VARCHAR(20) PRIMARY KEY,
         descripcion VARCHAR(50) NOT NULL
       )
     `);
@@ -144,12 +143,12 @@ async function createStarSchema() {
         tiempo_entrega_real_id INT NOT NULL,
         tiempo_primer_pago_id INT NOT NULL,
         tiempo_segundo_pago_id INT NOT NULL,
-        metodo_primer_pago_id INT NOT NULL,
-        metodo_segundo_pago_id INT NOT NULL,
+        metodo_primer_pago_id VARCHAR(20) NOT NULL,
+        metodo_segundo_pago_id VARCHAR(20) NOT NULL,
         primer_pago_empleado_id INT NOT NULL,
         segundo_pago_empleado_id INT NOT NULL,
         cliente_id INT NOT NULL,
-        prenda_id INT NOT NULL,
+        prenda_id VARCHAR(20) NOT NULL,
         direccion_id INT NOT NULL,
         estado_pedido_id INT NOT NULL,
         proveedor_id INT NOT NULL,
