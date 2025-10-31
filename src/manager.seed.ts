@@ -33,7 +33,7 @@ async function runAllSeeders() {
     await generatePricesPerGarmentSize(); //  prices per size
     await seedQuotation();
     await seedOrder();
-    // await seedPayment();
+    await seedPayment();
 
     console.log("\n✅ All seeders completed successfully!");
   } catch (error) {
