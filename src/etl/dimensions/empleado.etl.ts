@@ -30,11 +30,10 @@ export async function loadDimensionEmpleado() {
             emp.id,
             `${emp.nombres} ${emp.apellidos}`, // nombre_completo_empleado
             emp.email,
-            null // cargo (no existe en ER, se deja null)
         ]);
 
         await olap.query(
-            `INSERT INTO d_empleado (empleado_id, nombre_completo_empleado, email_empleado, cargo)
+            `INSERT INTO d_empleado (empleado_id, nombre_completo_empleado, email_empleado)
        VALUES ?`,
             [records]
         );
