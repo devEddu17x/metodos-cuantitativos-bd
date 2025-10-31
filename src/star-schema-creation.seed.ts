@@ -1,31 +1,31 @@
 import { starSchemaPool, ensureStarSchemaDatabaseExists } from "./star-schema.config";
 
 async function createStarSchema() {
-    // First, ensure the star schema database exists
-    await ensureStarSchemaDatabaseExists();
+  // First, ensure the star schema database exists
+  await ensureStarSchemaDatabaseExists();
 
-    // Now get a connection from the pool
-    const connection = await starSchemaPool.getConnection();
+  // Now get a connection from the pool
+  const connection = await starSchemaPool.getConnection();
 
-    try {
-        console.log("Creating star schema database...");
+  try {
+    console.log("Creating star schema database...");
 
-        // Drop tables if they exist (in reverse order of dependencies)
-        await connection.query("DROP TABLE IF EXISTS h_venta");
-        await connection.query("DROP TABLE IF EXISTS d_tiempo");
-        await connection.query("DROP TABLE IF EXISTS d_proveedor");
-        await connection.query("DROP TABLE IF EXISTS d_empleado");
-        await connection.query("DROP TABLE IF EXISTS d_direccion");
-        await connection.query("DROP TABLE IF EXISTS d_cliente");
-        await connection.query("DROP TABLE IF EXISTS d_prenda");
-        await connection.query("DROP TABLE IF EXISTS d_material");
-        await connection.query("DROP TABLE IF EXISTS d_metodo_pago");
-        await connection.query("DROP TABLE IF EXISTS d_estado_pedido");
+    // Drop tables if they exist (in reverse order of dependencies)
+    await connection.query("DROP TABLE IF EXISTS h_venta");
+    await connection.query("DROP TABLE IF EXISTS d_tiempo");
+    await connection.query("DROP TABLE IF EXISTS d_proveedor");
+    await connection.query("DROP TABLE IF EXISTS d_empleado");
+    await connection.query("DROP TABLE IF EXISTS d_direccion");
+    await connection.query("DROP TABLE IF EXISTS d_cliente");
+    await connection.query("DROP TABLE IF EXISTS d_prenda");
+    await connection.query("DROP TABLE IF EXISTS d_material");
+    await connection.query("DROP TABLE IF EXISTS d_metodo_pago");
+    await connection.query("DROP TABLE IF EXISTS d_estado_pedido");
 
-        // Create dimension tables
+    // Create dimension tables
 
-        // Dimension: d_tiempo
-        await connection.query(`
+    // Dimension: d_tiempo
+    await connection.query(`
       CREATE TABLE d_tiempo (
         tiempo_id INT AUTO_INCREMENT PRIMARY KEY,
         fecha_completa DATE NOT NULL,
@@ -39,10 +39,10 @@ async function createStarSchema() {
         es_fin_de_semana BOOLEAN NOT NULL
       )
     `);
-        console.log("Table 'd_tiempo' created");
+    console.log("Table 'd_tiempo' created");
 
-        // Dimension: d_cliente
-        await connection.query(`
+    // Dimension: d_cliente
+    await connection.query(`
       CREATE TABLE d_cliente (
         cliente_id INT PRIMARY KEY,
         nombre_completo_cliente VARCHAR(255) NOT NULL,
@@ -53,10 +53,10 @@ async function createStarSchema() {
         fecha_primer_compra DATE
       )
     `);
-        console.log("Table 'd_cliente' created");
+    console.log("Table 'd_cliente' created");
 
-        // Dimension: d_direccion
-        await connection.query(`
+    // Dimension: d_direccion
+    await connection.query(`
       CREATE TABLE d_direccion (
         direccion_id INT PRIMARY KEY,
         departamento VARCHAR(255) NOT NULL,
@@ -65,21 +65,20 @@ async function createStarSchema() {
         calle_direccion VARCHAR(255) NOT NULL
       )
     `);
-        console.log("Table 'd_direccion' created");
+    console.log("Table 'd_direccion' created");
 
-        // Dimension: d_empleado
-        await connection.query(`
+    // Dimension: d_empleado
+    await connection.query(`
       CREATE TABLE d_empleado (
         empleado_id INT PRIMARY KEY,
         nombre_completo_empleado VARCHAR(255) NOT NULL,
-        email_empleado VARCHAR(100) NOT NULL,
-        cargo VARCHAR(100)
+        email_empleado VARCHAR(100) NOT NULL
       )
     `);
-        console.log("Table 'd_empleado' created");
+    console.log("Table 'd_empleado' created");
 
-        // Dimension: d_prenda
-        await connection.query(`
+    // Dimension: d_prenda
+    await connection.query(`
       CREATE TABLE d_prenda (
         prenda_id INT PRIMARY KEY,
         nombre_prenda VARCHAR(100) NOT NULL,
@@ -89,10 +88,10 @@ async function createStarSchema() {
         categoria_prenda VARCHAR(100)
       )
     `);
-        console.log("Table 'd_prenda' created");
+    console.log("Table 'd_prenda' created");
 
-        // Dimension: d_material
-        await connection.query(`
+    // Dimension: d_material
+    await connection.query(`
       CREATE TABLE d_material (
         material_id INT PRIMARY KEY,
         nombre_material VARCHAR(100) NOT NULL,
@@ -101,10 +100,10 @@ async function createStarSchema() {
         precio_compra_material DECIMAL(10, 2) NOT NULL
       )
     `);
-        console.log("Table 'd_material' created");
+    console.log("Table 'd_material' created");
 
-        // Dimension: d_proveedor
-        await connection.query(`
+    // Dimension: d_proveedor
+    await connection.query(`
       CREATE TABLE d_proveedor (
         proveedor_id INT PRIMARY KEY,
         razon_social_proveedor VARCHAR(255) NOT NULL,
@@ -112,29 +111,29 @@ async function createStarSchema() {
         telefono_proveedor VARCHAR(20)
       )
     `);
-        console.log("Table 'd_proveedor' created");
+    console.log("Table 'd_proveedor' created");
 
-        // Dimension: d_metodo_pago
-        await connection.query(`
+    // Dimension: d_metodo_pago
+    await connection.query(`
       CREATE TABLE d_metodo_pago (
         metodo_pago_id INT AUTO_INCREMENT PRIMARY KEY,
         descripcion VARCHAR(50) NOT NULL
       )
     `);
-        console.log("Table 'd_metodo_pago' created");
+    console.log("Table 'd_metodo_pago' created");
 
-        // Dimension: d_estado_pedido
-        await connection.query(`
+    // Dimension: d_estado_pedido
+    await connection.query(`
       CREATE TABLE d_estado_pedido (
         estado_pedido_id INT AUTO_INCREMENT PRIMARY KEY,
         descripcion_estado VARCHAR(100) NOT NULL,
         tipo_estado VARCHAR(50) NOT NULL
       )
     `);
-        console.log("Table 'd_estado_pedido' created");
+    console.log("Table 'd_estado_pedido' created");
 
-        // Create fact table: h_venta
-        await connection.query(`
+    // Create fact table: h_venta
+    await connection.query(`
       CREATE TABLE h_venta (
         venta_id INT AUTO_INCREMENT PRIMARY KEY,
         cotizacion_empleado_id INT NOT NULL,
@@ -182,24 +181,24 @@ async function createStarSchema() {
         FOREIGN KEY (material_id) REFERENCES d_material(material_id)
       )
     `);
-        console.log("Table 'h_venta' (fact table) created");
+    console.log("Table 'h_venta' (fact table) created");
 
-        console.log("✅ Star schema database created successfully!");
-    } catch (error) {
-        console.error("❌ Error creating star schema:", error);
-        throw error;
-    } finally {
-        connection.release();
-    }
+    console.log("✅ Star schema database created successfully!");
+  } catch (error) {
+    console.error("❌ Error creating star schema:", error);
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
 // Execute the star schema creation
 createStarSchema()
-    .then(() => {
-        console.log("Star schema creation completed");
-        process.exit(0);
-    })
-    .catch((error) => {
-        console.error("Star schema creation failed:", error);
-        process.exit(1);
-    });
+  .then(() => {
+    console.log("Star schema creation completed");
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error("Star schema creation failed:", error);
+    process.exit(1);
+  });
