@@ -122,11 +122,12 @@ async function createSchema() {
     await connection.query(`
       CREATE TABLE pedido (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        cortesia VARCHAR(255),
+        cortesia BOOLEAN NOT NULL DEFAULT FALSE,
         total DECIMAL(10, 2) NOT NULL,
         estado VARCHAR(50) NOT NULL,
         fecha_emision DATE NOT NULL,
-        fecha_entrega DATE,
+        fecha_entrega_estimada DATE,
+        fecha_entrega_real DATE,
         cotizacion_id INT NOT NULL,
         direccion_id INT NOT NULL,
         FOREIGN KEY (cotizacion_id) REFERENCES cotizacion(id),
