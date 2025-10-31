@@ -7,7 +7,7 @@ import { loadDimensionPrenda } from "./dimensions/prenda.etl";
 import { loadDimensionDireccion } from "./dimensions/direccion.etl";
 import { loadDimensionMetodoPago } from "./dimensions/metodo-pago.etl";
 import { loadDimensionEstadoPedido } from "./dimensions/estado-pedido.etl";
-import { loadFactHVenta } from "./facts/h-venta.etl";
+import { loadFactHVenta } from "./facts/hventa.etl";
 import { pool } from "../config";
 import { starSchemaPool } from "../star-schema.config";
 
