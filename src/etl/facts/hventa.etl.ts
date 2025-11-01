@@ -115,12 +115,12 @@ export async function loadFactHVenta() {
         let skippedPrenda = 0;
 
         for (const v of ventas) {
-            const tiempoIdCotizacion = tiempoMap.get(v.fecha_cotizacion);
-            const tiempoIdPedido = tiempoMap.get(v.fecha_pedido);
-            const tiempoIdEntregaEstimada = tiempoMap.get(v.fecha_entrega_estimada);
-            const tiempoIdEntregaReal = tiempoMap.get(v.fecha_entrega_real);
-            const tiempoIdPago1 = tiempoMap.get(v.fecha_pago1);
-            const tiempoIdPago2 = tiempoMap.get(v.fecha_pago2);
+            const tiempoIdCotizacion = tiempoMap.get(formatDate(v.fecha_cotizacion));
+            const tiempoIdPedido = tiempoMap.get(formatDate(v.fecha_pedido));
+            const tiempoIdEntregaEstimada = tiempoMap.get(formatDate(v.fecha_entrega_estimada));
+            const tiempoIdEntregaReal = tiempoMap.get(formatDate(v.fecha_entrega_real));
+            const tiempoIdPago1 = tiempoMap.get(formatDate(v.fecha_pago1));
+            const tiempoIdPago2 = tiempoMap.get(formatDate(v.fecha_pago2));
 
             if (!tiempoIdCotizacion || !tiempoIdPedido || !tiempoIdEntregaEstimada ||
                 !tiempoIdEntregaReal || !tiempoIdPago1 || !tiempoIdPago2) {
@@ -157,8 +157,8 @@ export async function loadFactHVenta() {
             const porcentajeLinea = montoTotalLinea / v.total_pedido;
             const montoPago1Prorrateado = v.monto_pago1 * porcentajeLinea;
             const montoPago2Prorrateado = v.monto_pago2 * porcentajeLinea;
-            const diasCotizacionAPedido = dateDiff(v.fecha_cotizacion, v.fecha_pedido);
-            const diasPedidoAEntrega = dateDiff(v.fecha_pedido, v.fecha_entrega_real);
+            const diasCotizacionAPedido = dateDiff(formatDate(v.fecha_cotizacion), formatDate(v.fecha_pedido));
+            const diasPedidoAEntrega = dateDiff(formatDate(v.fecha_pedido), formatDate(v.fecha_entrega_real));
 
             records.push([
                 v.empleado_vendedor_id, tiempoIdCotizacion, tiempoIdPedido,
@@ -214,12 +214,11 @@ async function createTiempoMap(conn: PoolConnection): Promise<Map<string, number
     const [rows] = await conn.query<RowDataPacket[]>(`SELECT tiempo_id, fecha_completa FROM d_tiempo`);
     const map = new Map<string, number>();
     for (const row of rows) {
-        map.set(row.fecha_completa, row.tiempo_id);
+        const fechaFormateada = formatDate(row.fecha_completa);
+        map.set(fechaFormateada, row.tiempo_id);
     }
     return map;
-}
-
-async function createEstadoPedidoMap(conn: PoolConnection): Promise<Map<string, number>> {
+} async function createEstadoPedidoMap(conn: PoolConnection): Promise<Map<string, number>> {
     const [rows] = await conn.query<RowDataPacket[]>(`SELECT estado_pedido_id, descripcion_estado, tipo_estado FROM d_estado_pedido`);
     const map = new Map<string, number>();
     for (const row of rows) {
@@ -242,9 +241,17 @@ async function createPrendaMap(conn: PoolConnection): Promise<Map<string, string
     return map;
 }
 
-function dateDiff(from: string, to: string): number {
-    const fromDate = new Date(from);
-    const toDate = new Date(to);
+function formatDate(date: string | Date): string {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function dateDiff(from: string | Date, to: string | Date): number {
+    const fromDate = typeof from === 'string' ? new Date(from) : from;
+    const toDate = typeof to === 'string' ? new Date(to) : to;
     const diff = toDate.getTime() - fromDate.getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
