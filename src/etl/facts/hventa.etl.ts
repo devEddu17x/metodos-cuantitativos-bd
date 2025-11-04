@@ -28,11 +28,6 @@ interface VentaPacket extends RowDataPacket {
     empleado_cobrador2_id: number;
     fecha_pago2: string;
     monto_pago2: number;
-    material_id: number | null;
-    proveedor_id: number | null;
-    cantidad_material: number | null;
-    precio_material: number | null;
-    cantidad_base_material: number | null;
 }
 
 export async function loadFactHVenta() {
@@ -67,27 +62,7 @@ export async function loadFactHVenta() {
         pag2.numero_pago_pedido as numero_pago2,
         pag2.empleado_id as empleado_cobrador2_id,
         DATE(pag2.fecha) as fecha_pago2,
-        pag2.monto as monto_pago2,
-        (SELECT m.id FROM prenda_talla_material ptm
-         INNER JOIN material m ON ptm.material_id = m.id
-         WHERE ptm.prenda_id = dc.prenda_id AND ptm.talla_id = dc.talla_id
-         LIMIT 1) as material_id,
-        (SELECT pm.proveedor_id FROM prenda_talla_material ptm
-         INNER JOIN material m ON ptm.material_id = m.id
-         INNER JOIN proveedor_material pm ON m.id = pm.material_id
-         WHERE ptm.prenda_id = dc.prenda_id AND ptm.talla_id = dc.talla_id
-         LIMIT 1) as proveedor_id,
-        (SELECT ptm.cantidad FROM prenda_talla_material ptm
-         WHERE ptm.prenda_id = dc.prenda_id AND ptm.talla_id = dc.talla_id
-         LIMIT 1) as cantidad_material,
-        (SELECT m.precio FROM prenda_talla_material ptm
-         INNER JOIN material m ON ptm.material_id = m.id
-         WHERE ptm.prenda_id = dc.prenda_id AND ptm.talla_id = dc.talla_id
-         LIMIT 1) as precio_material,
-        (SELECT m.cantidad_base FROM prenda_talla_material ptm
-         INNER JOIN material m ON ptm.material_id = m.id
-         WHERE ptm.prenda_id = dc.prenda_id AND ptm.talla_id = dc.talla_id
-         LIMIT 1) as cantidad_base_material
+        pag2.monto as monto_pago2
       FROM detalle_cotizacion dc
       INNER JOIN cotizacion c ON dc.cotizacion_id = c.id
       INNER JOIN pedido ped ON c.id = ped.cotizacion_id
@@ -107,12 +82,10 @@ export async function loadFactHVenta() {
 
         const tiempoMap = await createTiempoMap(olap);
         const estadoPedidoMap = await createEstadoPedidoMap(olap);
-        const prendaMap = await createPrendaMap(olap);
 
         const records: any[] = [];
         let skippedFechas = 0;
         let skippedEstado = 0;
-        let skippedPrenda = 0;
 
         for (const v of ventas) {
             const tiempoIdCotizacion = tiempoMap.get(formatDate(v.fecha_cotizacion));
@@ -138,22 +111,10 @@ export async function loadFactHVenta() {
                 continue;
             }
 
-            const prendaKey = `${v.prenda_id}_${v.talla_id}`;
-            const prendaIdStarSchema = prendaMap.get(prendaKey);
-            if (!prendaIdStarSchema) {
-                skippedPrenda++;
-                continue;
-            }
+            // Construir directamente el prenda_id compuesto
+            const prendaIdStarSchema = `${v.prenda_id}-${v.talla_id}`;
 
             const montoTotalLinea = v.cantidad * v.precio_unitario;
-
-            let costoUnitarioMaterial = 0;
-            if (v.cantidad_material && v.precio_material && v.cantidad_base_material) {
-                const precioUnitario = v.precio_material / v.cantidad_base_material;
-                costoUnitarioMaterial = precioUnitario * v.cantidad_material;
-            }
-
-            const margenBruto = montoTotalLinea - (costoUnitarioMaterial * v.cantidad);
             const porcentajeLinea = montoTotalLinea / v.total_pedido;
             const montoPago1Prorrateado = v.monto_pago1 * porcentajeLinea;
             const montoPago2Prorrateado = v.monto_pago2 * porcentajeLinea;
@@ -165,9 +126,9 @@ export async function loadFactHVenta() {
                 tiempoIdEntregaEstimada, tiempoIdEntregaReal, tiempoIdPago1, tiempoIdPago2,
                 metodoPago1Id, metodoPago2Id, v.empleado_cobrador_id, v.empleado_cobrador2_id,
                 v.cliente_id, prendaIdStarSchema, v.direccion_id, estadoPedidoId,
-                v.proveedor_id || 1, v.material_id || 1, v.cantidad, v.precio_unitario,
+                v.cantidad, v.precio_unitario,
                 montoTotalLinea, montoPago1Prorrateado, montoPago2Prorrateado,
-                costoUnitarioMaterial, margenBruto, diasCotizacionAPedido, diasPedidoAEntrega
+                diasCotizacionAPedido, diasPedidoAEntrega
             ]);
         }
 
@@ -175,7 +136,6 @@ export async function loadFactHVenta() {
             console.log("   ⚠️ No se generaron registros válidos");
             console.log(`   - Saltados por fechas: ${skippedFechas}`);
             console.log(`   - Saltados por estado: ${skippedEstado}`);
-            console.log(`   - Saltados por prenda: ${skippedPrenda}`);
             return;
         }
 
@@ -192,10 +152,10 @@ export async function loadFactHVenta() {
           metodo_primer_pago_id, metodo_segundo_pago_id,
           primer_pago_empleado_id, segundo_pago_empleado_id,
           cliente_id, prenda_id, direccion_id, estado_pedido_id,
-          proveedor_id, material_id, cantidad, precio_unitario,
+          cantidad, precio_unitario,
           monto_total_linea, monto_primer_pago_prorrateado,
-          monto_segundo_pago_prorrateado, costo_unitario_material,
-          margen_bruto, dias_cotizacion_a_pedido, dias_pedido_a_entrega
+          monto_segundo_pago_prorrateado,
+          dias_cotizacion_a_pedido, dias_pedido_a_entrega
         ) VALUES ?`, [batch]);
             insertedCount += batch.length;
         }
@@ -218,25 +178,14 @@ async function createTiempoMap(conn: PoolConnection): Promise<Map<string, number
         map.set(fechaFormateada, row.tiempo_id);
     }
     return map;
-} async function createEstadoPedidoMap(conn: PoolConnection): Promise<Map<string, number>> {
+}
+
+async function createEstadoPedidoMap(conn: PoolConnection): Promise<Map<string, number>> {
     const [rows] = await conn.query<RowDataPacket[]>(`SELECT estado_pedido_id, descripcion_estado, tipo_estado FROM d_estado_pedido`);
     const map = new Map<string, number>();
     for (const row of rows) {
         const key = `${row.descripcion_estado}_${row.tipo_estado}`;
         map.set(key, row.estado_pedido_id);
-    }
-    return map;
-}
-
-async function createPrendaMap(conn: PoolConnection): Promise<Map<string, string>> {
-    const oltpConn = await pool.getConnection();
-    const [prendasER] = await oltpConn.query<RowDataPacket[]>(`SELECT prenda_id, talla_id FROM prenda_talla ORDER BY prenda_id, talla_id`);
-    oltpConn.release();
-    const map = new Map<string, string>();
-    for (const pt of prendasER) {
-        const key = `${pt.prenda_id}_${pt.talla_id}`;
-        const value = `${pt.prenda_id}-${pt.talla_id}`;
-        map.set(key, value);
     }
     return map;
 }
