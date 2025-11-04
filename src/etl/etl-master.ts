@@ -7,6 +7,8 @@ import { loadDimensionPrenda } from "./dimensions/prenda.etl";
 import { loadDimensionDireccion } from "./dimensions/direccion.etl";
 import { loadDimensionMetodoPago } from "./dimensions/metodo-pago.etl";
 import { loadDimensionEstadoPedido } from "./dimensions/estado-pedido.etl";
+import { loadDimensionPrendaMaterial } from "./dimensions/prenda-material.etl";
+import { loadDimensionMaterialProveedor } from "./dimensions/material-proveedor.etl";
 import { loadFactHVenta } from "./facts/hventa.etl";
 import { pool } from "../config";
 import { starSchemaPool } from "../star-schema.config";
@@ -42,6 +44,12 @@ async function main() {
         await Promise.all([
             loadDimensionMetodoPago(),
             loadDimensionEstadoPedido(),
+        ]);
+
+        // Tablas intermedias (N:N) - deben ir después de sus dimensiones padre
+        await Promise.all([
+            loadDimensionPrendaMaterial(),
+            loadDimensionMaterialProveedor(),
         ]);
 
         console.log("\n✅ Todas las dimensiones cargadas exitosamente\n");
