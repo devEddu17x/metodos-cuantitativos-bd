@@ -26,10 +26,10 @@ export async function seedAddresses() {
 
             // Extraer los valores necesarios
             // Formato: Código,Nombre,Dirección,Departamento,Provincia,Distrito
-            const direccion = values[2]?.trim();
-            const departamento = values[3]?.trim();
-            const provincia = values[4]?.trim();
-            const distrito = values[5]?.trim();
+            const direccion = values[1]?.trim();
+            const departamento = values[2]?.trim();
+            const provincia = values[3]?.trim();
+            const distrito = values[4]?.trim();
 
             // Validar que los campos requeridos existan
             if (departamento && provincia && distrito && direccion) {
