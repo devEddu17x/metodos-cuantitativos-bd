@@ -21,7 +21,7 @@ async function createStarSchema() {
     await connection.query("DROP TABLE IF EXISTS d_cliente");
     await connection.query("DROP TABLE IF EXISTS d_prenda");
     await connection.query("DROP TABLE IF EXISTS d_material");
-    await connection.query("DROP TABLE IF EXISTS d_metodo_pago");
+    await connection.query("DROP TABLE IF EXISTS d_registro_pago");
     await connection.query("DROP TABLE IF EXISTS d_estado_pedido");
 
     // Create dimension tables
@@ -140,14 +140,14 @@ async function createStarSchema() {
     `);
     console.log("Table 'd_material_proveedor' (intermediate) created");
 
-    // Dimension: d_metodo_pago
+    // Dimension: d_registro_pago
     await connection.query(`
-      CREATE TABLE d_metodo_pago (
-        metodo_pago_id VARCHAR(20) PRIMARY KEY,
+      CREATE TABLE d_registro_pago (
+        registro_pago_id VARCHAR(20) PRIMARY KEY,
         descripcion VARCHAR(50) NOT NULL
       )
     `);
-    console.log("Table 'd_metodo_pago' created");
+    console.log("Table 'd_registro_pago' created");
 
     // Dimension: d_estado_pedido
     await connection.query(`
@@ -170,8 +170,8 @@ async function createStarSchema() {
         tiempo_entrega_real_id INT NOT NULL,
         tiempo_primer_pago_id INT NOT NULL,
         tiempo_segundo_pago_id INT NOT NULL,
-        metodo_primer_pago_id VARCHAR(20) NOT NULL,
-        metodo_segundo_pago_id VARCHAR(20) NOT NULL,
+        registro_primer_pago_id VARCHAR(20) NOT NULL,
+        registro_segundo_pago_id VARCHAR(20) NOT NULL,
         primer_pago_empleado_id INT NOT NULL,
         segundo_pago_empleado_id INT NOT NULL,
         cliente_id INT NOT NULL,
@@ -192,8 +192,8 @@ async function createStarSchema() {
         FOREIGN KEY (tiempo_entrega_real_id) REFERENCES d_tiempo(tiempo_id),
         FOREIGN KEY (tiempo_primer_pago_id) REFERENCES d_tiempo(tiempo_id),
         FOREIGN KEY (tiempo_segundo_pago_id) REFERENCES d_tiempo(tiempo_id),
-        FOREIGN KEY (metodo_primer_pago_id) REFERENCES d_metodo_pago(metodo_pago_id),
-        FOREIGN KEY (metodo_segundo_pago_id) REFERENCES d_metodo_pago(metodo_pago_id),
+        FOREIGN KEY (registro_primer_pago_id) REFERENCES d_registro_pago(registro_pago_id),
+        FOREIGN KEY (registro_segundo_pago_id) REFERENCES d_registro_pago(registro_pago_id),
         FOREIGN KEY (primer_pago_empleado_id) REFERENCES d_empleado(empleado_id),
         FOREIGN KEY (segundo_pago_empleado_id) REFERENCES d_empleado(empleado_id),
         FOREIGN KEY (cliente_id) REFERENCES d_cliente(cliente_id),
