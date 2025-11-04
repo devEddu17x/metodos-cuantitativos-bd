@@ -12,6 +12,8 @@ async function createStarSchema() {
 
     // Drop tables if they exist (in reverse order of dependencies)
     await connection.query("DROP TABLE IF EXISTS h_venta");
+    await connection.query("DROP TABLE IF EXISTS d_prenda_material");
+    await connection.query("DROP TABLE IF EXISTS d_material_proveedor");
     await connection.query("DROP TABLE IF EXISTS d_tiempo");
     await connection.query("DROP TABLE IF EXISTS d_proveedor");
     await connection.query("DROP TABLE IF EXISTS d_empleado");
@@ -77,14 +79,15 @@ async function createStarSchema() {
     `);
     console.log("Table 'd_empleado' created");
 
-    // Dimension: d_prenda
+    // Dimension: d_prenda (incluye talla y cantidad_base, ID compuesto prenda_id-talla_id)
     await connection.query(`
       CREATE TABLE d_prenda (
         prenda_id VARCHAR(20) PRIMARY KEY,
         nombre_prenda VARCHAR(100) NOT NULL,
         descripcion_prenda TEXT,
         diseno_prenda VARCHAR(255),
-        talla_prenda VARCHAR(30) NOT NULL
+        talla_prenda VARCHAR(30) NOT NULL,
+        cantidad_base DECIMAL(10, 2) NOT NULL
       )
     `);
     console.log("Table 'd_prenda' created");
@@ -112,6 +115,31 @@ async function createStarSchema() {
       )
     `);
     console.log("Table 'd_proveedor' created");
+
+    // Tabla intermedia: d_prenda_material (N:N)
+    await connection.query(`
+      CREATE TABLE d_prenda_material (
+        prenda_id VARCHAR(20) NOT NULL,
+        material_id INT NOT NULL,
+        cantidad_material DECIMAL(10, 2) NOT NULL,
+        PRIMARY KEY (prenda_id, material_id),
+        FOREIGN KEY (prenda_id) REFERENCES d_prenda(prenda_id),
+        FOREIGN KEY (material_id) REFERENCES d_material(material_id)
+      )
+    `);
+    console.log("Table 'd_prenda_material' (intermediate) created");
+
+    // Tabla intermedia: d_material_proveedor (N:N)
+    await connection.query(`
+      CREATE TABLE d_material_proveedor (
+        material_id INT NOT NULL,
+        proveedor_id INT NOT NULL,
+        PRIMARY KEY (material_id, proveedor_id),
+        FOREIGN KEY (material_id) REFERENCES d_material(material_id),
+        FOREIGN KEY (proveedor_id) REFERENCES d_proveedor(proveedor_id)
+      )
+    `);
+    console.log("Table 'd_material_proveedor' (intermediate) created");
 
     // Dimension: d_metodo_pago
     await connection.query(`
@@ -151,8 +179,6 @@ async function createStarSchema() {
         prenda_id VARCHAR(20) NOT NULL,
         direccion_id INT NOT NULL,
         estado_pedido_id INT NOT NULL,
-        proveedor_id INT NOT NULL,
-        material_id INT NOT NULL,
         cantidad INT NOT NULL,
         precio_unitario DECIMAL(10, 2) NOT NULL,
         monto_total_linea DECIMAL(10, 2) NOT NULL,
@@ -176,9 +202,7 @@ async function createStarSchema() {
         FOREIGN KEY (cliente_id) REFERENCES d_cliente(cliente_id),
         FOREIGN KEY (prenda_id) REFERENCES d_prenda(prenda_id),
         FOREIGN KEY (direccion_id) REFERENCES d_direccion(direccion_id),
-        FOREIGN KEY (estado_pedido_id) REFERENCES d_estado_pedido(estado_pedido_id),
-        FOREIGN KEY (proveedor_id) REFERENCES d_proveedor(proveedor_id),
-        FOREIGN KEY (material_id) REFERENCES d_material(material_id)
+        FOREIGN KEY (estado_pedido_id) REFERENCES d_estado_pedido(estado_pedido_id)
       )
     `);
     console.log("Table 'h_venta' (fact table) created");
