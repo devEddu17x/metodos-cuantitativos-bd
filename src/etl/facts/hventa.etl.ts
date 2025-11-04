@@ -149,7 +149,7 @@ export async function loadFactHVenta() {
           cotizacion_empleado_id, tiempo_cotizacion_id, tiempo_pedido_id,
           tiempo_entrega_estimado_id, tiempo_entrega_real_id,
           tiempo_primer_pago_id, tiempo_segundo_pago_id,
-          metodo_primer_pago_id, metodo_segundo_pago_id,
+          registro_primer_pago_id, registro_segundo_pago_id,
           primer_pago_empleado_id, segundo_pago_empleado_id,
           cliente_id, prenda_id, direccion_id, estado_pedido_id,
           cantidad, precio_unitario,
