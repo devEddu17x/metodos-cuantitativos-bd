@@ -79,15 +79,14 @@ async function createStarSchema() {
     `);
     console.log("Table 'd_empleado' created");
 
-    // Dimension: d_prenda (incluye talla y cantidad_base, ID compuesto prenda_id-talla_id)
+    // Dimension: d_prenda (incluye talla, ID compuesto prenda_id-talla_id)
     await connection.query(`
       CREATE TABLE d_prenda (
         prenda_id VARCHAR(20) PRIMARY KEY,
         nombre_prenda VARCHAR(100) NOT NULL,
         descripcion_prenda TEXT,
         diseno_prenda VARCHAR(255),
-        talla_prenda VARCHAR(30) NOT NULL,
-        cantidad_base DECIMAL(10, 2) NOT NULL
+        talla_prenda VARCHAR(30) NOT NULL
       )
     `);
     console.log("Table 'd_prenda' created");
@@ -184,8 +183,6 @@ async function createStarSchema() {
         monto_total_linea DECIMAL(10, 2) NOT NULL,
         monto_primer_pago_prorrateado DECIMAL(10, 2) NOT NULL,
         monto_segundo_pago_prorrateado DECIMAL(10, 2) NOT NULL,
-        costo_unitario_material DECIMAL(10, 2) NOT NULL,
-        margen_bruto DECIMAL(10, 2) NOT NULL,
         dias_cotizacion_a_pedido INT NOT NULL,
         dias_pedido_a_entrega INT NOT NULL,
         FOREIGN KEY (cotizacion_empleado_id) REFERENCES d_empleado(empleado_id),
